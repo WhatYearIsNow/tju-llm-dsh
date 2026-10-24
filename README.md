@@ -78,17 +78,17 @@ tju-dsh verify
 ```text
 帮我在这台电脑上把「天津大学智算平台」接入 DeepSeek Harness（dsh）。
 
-做法：先访问这个引导脚本并严格按它执行：
-https://raw.githubusercontent.com/WhatYearIsNow/tju-llm-dsh/main/SKILL.md
+第一步：先把这个仓库安装为你的技能——
+git clone https://github.com/WhatYearIsNow/tju-llm-dsh
+放进你约定的技能目录（如 ~/.agents/skills/tju-llm-dsh；没有该约定就放到固定位置），并 cd 进去执行 npm install --omit=dev。
 
-要求：
-1. 我之前没装过 dsh 也没关系，按脚本第 0 步从零装好；
-2. 我还没有 API Key 的话，按脚本第 1 步引导我去申请开通、获取 Key；
-3. 配置完成后运行连通性测试，把结果告诉我；
-4. 模型全配上（或：只要 tju-llm 和 tju-llm-coder）。
+第二步：读取安装好的 SKILL.md，严格按它执行：
+我之前没装过 dsh 也没关系，按第 0 步从零装好；还没有 API Key 的话，
+按第 1 步引导我去申请开通、获取 Key；模型全配上（或：只要 tju-llm 和 tju-llm-coder）；
+配置完成后运行连通性测试，把结果告诉我。
 ```
 
-> 如果对方 agent 已经装好了本技能（或你在用自己的 Claude Code / ZCode），一句话就够：**「帮我把天大智算接入 dsh」**。
+> 装成技能的好处：以后再要对其他机器/其他 profile 操作，一句话「帮我把天大智算接入 dsh」即可，不用再贴链接。
 >
 > 安全提示：Key 会留在聊天记录里，用完可随时到[智能体广场](https://ai.tju.edu.cn)重置；更稳妥的方式是让 agent 用环境变量方式传入（SKILL.md 里有要求）。
 
