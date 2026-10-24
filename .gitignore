@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# logs & temp
+debug.log
+*.log
+
+# backups created by tju-dsh
+*.bak
+*.bak-*
+
+# os
+Thumbs.db
+.DS_Store
