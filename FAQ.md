@@ -2,6 +2,16 @@
 
 ## 配置写入
 
+### Q: 我完全没用过 dsh，怎么开始？
+
+先装 DeepSeek Harness（官方开源项目）：
+
+1. 装 Node.js ≥ 18（[nodejs.org](https://nodejs.org/) 下载 LTS，Windows 可 `winget install OpenJS.NodeJS.LTS`）；
+2. `npm install -g @deepseek-ai/dsh`；
+3. 终端跑 `dsh web`——首次运行自动初始化 profile 并生成 `~/.dsh/` 目录，按输出地址打开浏览器（一般是 `http://127.0.0.1:3080`）确认能访问。
+
+然后回来照 README「三步接入」走即可。用 DeepSeek 桌面版的话，`desktop` profile 同样被本工具支持。
+
 ### Q: 工具到底改了哪两个文件？
 
 1. `~/.dsh/profiles/<profile>/cordis.patch.yml` — 顶层补丁数组中加入/合并 `llm-pi-ai` 插件条目，provider 名为 `tju`。

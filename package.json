@@ -1,6 +1,6 @@
 {
   "name": "tju-llm-dsh",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "把天津大学智算平台（ai.tju.edu.cn）接入 DeepSeek Harness（dsh）——社区工具，非官方",
   "type": "module",
   "bin": {

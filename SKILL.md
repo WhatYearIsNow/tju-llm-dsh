@@ -23,9 +23,10 @@ cd <安装目录> && npm install --omit=dev
 # 之后用 node bin/tju-dsh.mjs 代替 tju-dsh
 ```
 
-前置检查：`node --version`（需 ≥ 18）；目录 `~/.dsh/profiles/` 是否存在
-（Windows 为 `%USERPROFILE%\.dsh\profiles`）。不存在就先让用户安装并运行一次
-`dsh`（`npm i -g @deepseek-ai/dsh`），没有 dsh 就没有配置目标。
+前置检查：`node --version`（需 ≥ 18，没有就去 nodejs.org 装 LTS 或 `winget install OpenJS.NodeJS.LTS`）；目录 `~/.dsh/profiles/` 是否存在
+（Windows 为 `%USERPROFILE%\.dsh\profiles`）。不存在就让用户装 dsh 并跑一次：
+`npm install -g @deepseek-ai/dsh` 然后 `dsh web`（首次运行自动生成 `~/.dsh/profiles/`，
+按输出地址打开浏览器确认能访问）。没有 dsh 就没有配置目标。
 
 ## 对话脚本（按顺序，不要跳步）
 

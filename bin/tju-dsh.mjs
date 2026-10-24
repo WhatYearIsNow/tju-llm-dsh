@@ -193,7 +193,7 @@ async function pickProfile(opts, p) {
     return opts.profile;
   }
   if (profiles.length === 0) {
-    die('没有找到任何 dsh profile。请先安装并运行一次 dsh（它会生成 ~/.dsh/profiles/），再运行本工具。');
+    die('没有找到任何 dsh profile。请先运行一次 dsh web（首次运行会自动生成 ~/.dsh/profiles/），再运行本工具。');
   }
   if (profiles.length === 1) {
     info(`使用唯一的 profile：${profiles[0]}`);
@@ -458,7 +458,7 @@ async function cmdSetup(opts) {
   console.log(c.cyan('\n== tju-dsh：把天津大学智算平台接入 DeepSeek Harness ==\n'));
 
   if (!existsSync(p.dshDir)) {
-    die(`未找到 ${p.dshDir}。请先安装并运行一次 dsh（npm i -g @deepseek-ai/dsh 后执行 dsh），再运行本工具。`);
+    die(`未找到 ${p.dshDir}。若从未用过 dsh：先装 Node.js ≥ 18（nodejs.org），再执行 npm install -g @deepseek-ai/dsh，然后运行一次 dsh web（自动生成配置目录），最后重新运行本工具。`);
   }
 
   const profile = await pickProfile(opts, p);

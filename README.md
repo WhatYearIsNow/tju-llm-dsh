@@ -14,10 +14,31 @@
 - **数据不出校**：请求直接发往校内网关，不经过第三方
 - **模型新**：DeepSeek / Qwen 系列最新模型，最高 512K 上下文
 
+## 从零开始：先装 DeepSeek Harness（没用过 dsh？看这里）
+
+dsh 是 DeepSeek 官方的开源 agent 入口（[deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)）。从未接触过的话，三步装好：
+
+1. **装 Node.js ≥ 18**（还没有的话）：去 [nodejs.org](https://nodejs.org/) 下载 LTS 版安装，Windows 也可以在 PowerShell 里执行 `winget install OpenJS.NodeJS.LTS`。装完在终端跑 `node --version` 能看到版本号即可。
+2. **装 dsh**：
+
+   ```powershell
+   npm install -g @deepseek-ai/dsh
+   ```
+
+3. **跑一次**：
+
+   ```powershell
+   dsh web
+   ```
+
+   首次运行会自动初始化 Web profile 并生成 `~/.dsh/` 配置目录（Windows 即 `%USERPROFILE%\.dsh`）；按终端输出的本地地址打开浏览器即可使用（一般是 `http://127.0.0.1:3080`）。确认页面能打开后 Ctrl+C 停掉，回到下面的接入步骤。
+
+> 用 DeepSeek 桌面版的同学：它使用的 `desktop` profile 本工具同样支持，装好本工具直接配置即可。
+
 ## 前置条件
 
 1. **Node.js ≥ 18**（dsh 用户天然满足）
-2. **已安装并运行过一次 dsh**（`npm i -g @deepseek-ai/dsh`，跑一次让它生成 `~/.dsh/profiles/`）
+2. **已安装并运行过一次 dsh**（没装过？照上一节《从零开始》三步即可）
 3. **天大智算 API Key**（`tk-` 开头）——需要先申请开通服务，见[下一节](#如何获取-api-key)
 
 ## 如何获取 API Key（两步）
