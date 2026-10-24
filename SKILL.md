@@ -31,9 +31,14 @@ cd <安装目录> && npm install --omit=dev
 
 ### 1. 问用户要 Key（唯一必须问的）
 
-> 「请把天大智算的 API Key 发给我（tk- 开头，在 https://ai.tju.edu.cn 个人设置里生成）」
+先确认用户**是否已开通服务**——Key 不是上来就能生成的，依据信息与网络中心推文（[原文](https://mp.weixin.qq.com/s/iNoT0yAlxM0iv9NjJ15s6Q)）需要两步：
 
-用户没有 Key → 引导去上面网址生成，等用户拿到再继续。
+1. **申请开通**：融合门户 → **网上办事大厅** → 检索「Token」或「大模型」→ 填《本地大模型免费 Token 服务开通申请表》提交，**系统自动开通**；
+2. **获取 Key**：登录[**智能体广场**](https://ai.tju.edu.cn)获取 `tk-` 开头的个人 API Key（同页可查用量）。
+
+> 话术：「天大智算的 Key 需要先开通服务：登录融合门户→网上办事大厅→搜『Token』提交开通申请（自动生效），然后到 ai.tju.edu.cn（智能体广场）拿你的 tk- 开头 Key 发给我。」
+
+用户没有 Key → 按上面话术引导，等拿到再继续。额度规则（可顺带告知）：每人每月上行 10 亿 / 下行 1000 万词元；仅限校园网访问；咨询 022-27404455。
 
 ### 2. profile（多数情况不用问）
 
@@ -78,7 +83,7 @@ tju-dsh verify --model <用户最关心的那个模型，缺省 tju-llm>
 
 | 现象 | 原因与话术 |
 |---|---|
-| HTTP 429 且 body 含 `Prompt token limit exceeded` | **账户额度用尽/受限**，与请求大小无关。让用户上 ai.tju.edu.cn 查用量或换 Key |
+| HTTP 429 且 body 含 `Prompt token limit exceeded` | **账户额度用尽/受限，或服务根本没开通**（要先去网上办事大厅申请）。让用户上 ai.tju.edu.cn 查用量 |
 | 纯 429 | 限流 60 次/分钟，等几秒重试 |
 | 401/403 | Key 无效或过期 → `remove` 后用新 Key 重配 |
 | `model not found` | 模型名大小写错了（只认小写）或已下线 → `tju-dsh models` 看列表 |

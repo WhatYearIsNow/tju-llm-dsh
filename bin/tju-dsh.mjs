@@ -506,7 +506,7 @@ async function cmdSetup(opts) {
     ok(`已存在 ${ENV_KEY}，保持不变（如需更换：tju-dsh remove 后重新配置，或直接编辑 ${p.credsFile}）`);
   } else if (!key) {
     console.log('');
-    console.log(`请粘贴天大智算的 API Key（tk- 开头，在 https://ai.tju.edu.cn 个人设置里生成；输入不回显）`);
+    console.log(`请粘贴天大智算的 API Key（tk- 开头；需先在融合门户网上办事大厅申请开通服务，再到智能体广场 ai.tju.edu.cn 获取 Key。输入不回显）`);
     key = await prompt('API Key: ', { hidden: true });
     if (!key) die('API Key 不能为空。');
   }
@@ -543,9 +543,9 @@ async function cmdVerify(opts) {
     if (e.message.includes('\n')) console.log(c.dim(e.message.split('\n').slice(1).join('\n')));
     console.log('');
     if (e.status === 401 || e.status === 403) {
-      info('多为 API Key 无效/过期。去 https://ai.tju.edu.cn 重新生成，然后 tju-dsh remove && tju-dsh 重配。');
+      info('多为 API Key 无效/过期，或服务未开通（需先在融合门户网上办事大厅申请）。去 https://ai.tju.edu.cn 重新生成，然后 tju-dsh remove && tju-dsh 重配。');
     } else if (/Prompt token limit/i.test(e.body || '')) {
-      info('网关返回「Prompt token limit exceeded」：通常是账户额度用尽或受限（与请求本身无关）。去 https://ai.tju.edu.cn 查看用量，或换一个 Key 试。');
+      info('网关返回「Prompt token limit exceeded」：通常是额度用尽/受限，或服务未开通（网上办事大厅搜「Token」申请）。去 https://ai.tju.edu.cn 查看用量，或换一个 Key 试。');
     } else if (e.status === 404 || /model/i.test(e.message)) {
       info(`模型 ${model} 可能不存在或已下线，运行 tju-dsh models 查看可用列表。`);
     } else if (e.status === 429) {
