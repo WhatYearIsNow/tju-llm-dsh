@@ -1,0 +1,37 @@
+{
+  "name": "tju-llm-dsh",
+  "version": "1.0.0",
+  "description": "把天津大学智算平台（ai.tju.edu.cn）接入 DeepSeek Harness（dsh）——社区工具，非官方",
+  "type": "module",
+  "bin": {
+    "tju-dsh": "bin/tju-dsh.mjs"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "FAQ.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/run-tests.mjs"
+  },
+  "keywords": [
+    "tju",
+    "tianjin-university",
+    "deepseek-harness",
+    "dsh",
+    "llm",
+    "openai-compatible"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WhatYearIsNow/tju-llm-dsh.git"
+  }
+}

@@ -1,76 +1,96 @@
-﻿---
-title: 天大智算接入 DSH 指南
-created: 2026-01-01
-updated: 2026-01-01
-tags: [tju-llm, dsh, setup, guide]
-status: active
----
+# tju-llm-dsh
 
-# 天大智算接入 DeepSeek Harness 指南
+> 一键把**天津大学智算平台**（[ai.tju.edu.cn](https://ai.tju.edu.cn)）接入 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）。
+>
+> 社区工具，非官方，与天津大学及 DeepSeek 无关联。
 
-> 让天津大学同学一键把校内免费模型（tju-llm）接入 DeepSeek Harness。
+**English quick start:** `git clone https://github.com/WhatYearIsNow/tju-llm-dsh && cd tju-llm-dsh && npm install && node bin/tju-dsh.mjs` — interactive setup, then `node bin/tju-dsh.mjs verify` to test. Requires Node ≥ 18 and a TJU LLM API key. See [Command reference](#命令一览) below.
 
-## 为什么接入？
+## 为什么接入天大智算？
 
-- **免费**：校内模型免费使用，不花一分钱
-- **隐私好**：数据不出校，不经过第三方服务器
-- **模型新**：天大部署的是最新版的千问系列模型
+- **免费**：校内大模型服务平台，不花一分钱
+- **数据不出校**：请求直接发往校内网关，不经过第三方
+- **模型新**：DeepSeek / Qwen 系列最新模型，最高 512K 上下文
 
 ## 前置条件
 
-1. 已安装 [DeepSeek Harness](https://github.com/deepseek-ai/dsh)（[安装教程](https://docs.deepseek.ai/)）
-2. 拥有天大智算平台的 API Key（[获取地址](https://ai.tju.edu.cn)）
+1. **Node.js ≥ 18**（dsh 用户天然满足）
+2. **已安装并运行过一次 dsh**（`npm i -g @deepseek-ai/dsh`，跑一次让它生成 `~/.dsh/profiles/`）
+3. **天大智算 API Key**（`tk-` 开头，在 [ai.tju.edu.cn](https://ai.tju.edu.cn) 个人设置里生成）
 
 ## 三步接入
 
-### 第一步：运行配置脚本
-
-打开 PowerShell，运行以下命令（一行搞定）：
-
 ```powershell
-cd D:\Documents\AI-System\Projects\tju-llm-dsh-setup
-.\setup.ps1
+# 1. 配置（交互式：选 profile → 粘贴 Key）
+npx github:WhatYearIsNow/tju-llm-dsh
+
+# 2. 重启 dsh（或刷新 Web GUI 页面），模型选择器出现「天津大学」分组
+
+# 3. 验证连通
+npx github:WhatYearIsNow/tju-llm-dsh verify
 ```
 
-脚本会自动：
-- 检测 DSH 是否安装
-- 创建/更新配置文件
-- 提示你输入 API Key
+> `npx github:...` 需要本机装有 git。也可以 `git clone` 后本地运行：`npm install && node bin/tju-dsh.mjs`。
 
-### 第二步：输入 API Key
+## 写入了什么？
 
-脚本运行后会提示你输入天大智算的 API Key。输入时**不会显示**，输完按回车即可。
+工具只做两件事，且**只动天津大学相关的内容**，其余配置一律不碰：
 
-> **没有 Key？** 去 [天大智算平台](https://ai.tju.edu.cn) 注册并获取。
+| 文件 | 写入内容 |
+|---|---|
+| `~/.dsh/profiles/<profile>/cordis.patch.yml` | 顶层补丁数组中 `llm-pi-ai` 插件的 `providers.tju` 段（含 5 个模型） |
+| `~/.dsh/.credentials.yaml` | `refs:` 下的 `TJU_API_KEY: <你的 Key>` |
 
-### 第三步：验证连通性
+每次修改前自动备份（`*.bak-<时间戳>`，保留在原目录）；重复运行安全（幂等）；`remove` 命令可一键撤销。
 
-运行验证脚本：
+## 模型一览
 
-```powershell
-.\verify.ps1
+| 模型 ID | 用途 | 上下文 | 单次输出上限 | 视觉 | 思考 |
+|---|---|---|---|---|---|
+| `deepseek-v4.1-flash` | 旗舰·思考（最强） | 512K | 64K | ✅ | ✅ off/low/high/xhigh/max |
+| `tju-llm-max` | 旗舰·快答 | 512K | 64K | ✅ | ❌ |
+| `tju-llm-coder` | 代码 | 256K | 32K | ❌ 纯文本 | ❌ |
+| `tju-llm` | 通用 | 256K | 32K | ✅ | ❌ |
+| `tju-llm-stable` | 轻量 | 256K | 32K | ✅ | ❌ |
+
+> 拿不定主意：日常用 `tju-llm`，写代码用 `tju-llm-coder`，要最强推理用 `deepseek-v4.1-flash`。
+> 网关限流 **60 次/分钟**；思考模型的思维链计入输出 token，`max_tokens` 别设太小。
+
+## 命令一览
+
 ```
+tju-dsh [setup]             配置（默认命令；交互选择 profile，粘贴 Key）
+tju-dsh verify [--model id] 连通性测试（默认 tju-llm）
+tju-dsh models              查询网关当前提供的模型列表（无需 Key）
+tju-dsh remove [--all]      撤销写入的内容（只删天津大学相关部分）
 
-看到 `连通性测试通过` 就成功了！
-
-## 在 DSH 中使用
-
-1. 打开 DSH Web GUI（`http://127.0.0.1:3080`）
-2. 刷新页面
-3. 在模型选择器中找到「天大智算」
-4. 选中即可使用
+选项：--profile <名>  指定 profile
+      --key <tk-...>  非交互提供 Key
+      --home <目录>   覆盖用户主目录（测试用）
+      --yes, -y       非交互模式
+```
 
 ## 常见问题
 
-- **脚本找不到 DSH？** 确认 DSH 已安装（`dsh --version`）
-- **连通性测试失败？** 检查 API Key 是否正确，或查看 [FAQ](FAQ.md)
-- **想切换回默认模型？** 在 DSH 模型选择器中切回即可
+见 [FAQ.md](FAQ.md)。高频三条：
 
-## 技术说明
+- **连通报「Prompt token limit exceeded」**：账户额度用尽或受限，与请求本身无关，去平台看用量。
+- **刷新后看不到「天津大学」**：重启 dsh 进程；仍不行就运行 `tju-dsh models` 确认网关可达。
+- **想换 Key**：编辑 `~/.dsh/.credentials.yaml` 里 `refs:` 下的 `TJU_API_KEY` 即可，或 `remove` 后重跑。
 
-- 配置位置：`~/.dsh/settings.yaml`（模型配置）和 `~/.dsh/.credentials.yaml`（密钥存储）
-- 协议：OpenAI 兼容（`openai-completions`）
-- 端点：`https://ai.tju.edu.cn/api/v3`
-- 模型：`tju-llm`（实际后端为千问系列）
+## 开发
 
-> 本项目仅供天津大学师生使用，请勿将 API Key 分享给他人。
+```powershell
+npm test    # 端到端测试：临时目录模拟 ~/.dsh，覆盖全新安装/合并/幂等/卸载
+```
+
+欢迎 PR。新增模型只需改 `bin/tju-dsh.mjs` 里的 `MODELS` 表。
+
+## 安全说明
+
+- API Key 只写入本机 `~/.dsh/.credentials.yaml`，不经过任何第三方（包括本工具作者）。
+- 本工具不收集、不上传任何数据；网络请求只发往 `ai.tju.edu.cn`。
+
+## License
+
+[MIT](LICENSE)
