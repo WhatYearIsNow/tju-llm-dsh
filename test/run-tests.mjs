@@ -197,6 +197,43 @@ T('异常凭据结构', () => {
 });
 
 // ---------------------------------------------------------------------------
+// 场景 6：--models 子集写入
+// ---------------------------------------------------------------------------
+
+T('--models 子集', () => {
+  const home = makeHome({});
+  run(home, ['setup', '--key', KEY, '--models', 'tju-llm,tju-llm-coder']);
+
+  const prov = yaml.load(readFileSync(join(home, '.dsh', 'profiles', 'desktop', 'cordis.patch.yml'), 'utf8'))[0]
+    .config.providers.tju;
+  assert(prov.models.length === 2, '只写入指定的 2 个模型');
+  assert(prov.models.map((m) => m.id).join() === 'tju-llm,tju-llm-coder', '模型 id 与顺序正确');
+
+  // 非法 id 应报错退出
+  let threw = false;
+  try { run(home, ['setup', '--key', KEY, '--models', 'no-such-model']); } catch { threw = true; }
+  assert(threw, '未知模型 id 拒绝并退出');
+
+  rmSync(home, { recursive: true, force: true });
+});
+
+// ---------------------------------------------------------------------------
+// 场景 7：环境变量 TJU_DSH_KEY 传 Key（agent 推荐路径，避免命令行历史泄漏）
+// ---------------------------------------------------------------------------
+
+T('环境变量传 Key', () => {
+  const home = makeHome({});
+  execFileSync(process.execPath, [CLI, 'setup', '--home', home, '--yes'], {
+    encoding: 'utf8',
+    env: { ...process.env, NO_COLOR: '1', USERPROFILE: home, HOME: home, TJU_DSH_KEY: KEY },
+  });
+  const creds = yaml.load(readFileSync(join(home, '.dsh', '.credentials.yaml'), 'utf8'));
+  assert(creds.refs.TJU_API_KEY === KEY, '从 TJU_DSH_KEY 读取并写入凭据文件');
+
+  rmSync(home, { recursive: true, force: true });
+});
+
+// ---------------------------------------------------------------------------
 
 console.log(`\n结果：${passed} 通过，${failed} 失败`);
 process.exit(failed ? 1 : 0);

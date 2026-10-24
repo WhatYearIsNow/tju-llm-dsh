@@ -104,6 +104,7 @@ function parseArgs(argv) {
     else if (a === '--profile') opts.profile = argv[++i];
     else if (a === '--key') opts.key = argv[++i];
     else if (a === '--model') opts.model = argv[++i];
+    else if (a === '--models') opts.models = String(argv[++i]).split(/[,\s，]+/).filter(Boolean);
     else if (a === '--all') opts.all = true;
     else if (a === '--help' || a === '-h') opts.help = true;
     else if (a.startsWith('--')) die(`未知选项：${a}（--help 查看用法）`);
@@ -215,7 +216,7 @@ function patchFileFor(p, profile) {
   return join(p.profilesDir, profile, 'cordis.patch.yml');
 }
 
-function buildPatchEntry() {
+function buildPatchEntry(models = MODELS) {
   return {
     id: PLUGIN_ID,
     name: PLUGIN_NAME,
@@ -229,11 +230,29 @@ function buildPatchEntry() {
           defaultContextWindow: 262144,
           defaultMaxTokens: 32768,
           compat: { thinkingFormat: 'openai' },
-          models: MODELS.map((m) => ({ ...m })),
+          models: models.map((m) => ({ ...m })),
         },
       },
     },
   };
+}
+
+/** 把用户输入的 id / 序号解析成 MODELS 子集；大小写不敏感（网关只认小写）。 */
+function resolveModels(tokens) {
+  const picked = [];
+  for (const t of tokens) {
+    if (/^\d+$/.test(t)) {
+      const idx = parseInt(t, 10) - 1;
+      if (!(idx >= 0 && idx < MODELS.length)) die(`序号超出范围：${t}（1-${MODELS.length}）`);
+      picked.push(MODELS[idx]);
+      continue;
+    }
+    const m = MODELS.find((x) => x.id === t.toLowerCase());
+    if (!m) die(`未知模型：${t}。可用：${MODELS.map((x) => x.id).join(', ')}（运行 tju-dsh models 可看网关实时列表）`);
+    picked.push(m);
+  }
+  if (picked.length === 0) die('没有指定任何模型。');
+  return picked;
 }
 
 /** 把顶层条目数组写回文件，保留原有头部注释；文件不存在时写默认头部。 */
@@ -445,6 +464,22 @@ async function cmdSetup(opts) {
   const profile = await pickProfile(opts, p);
   const profiles = profile === 'ALL' ? listProfiles(p) : [profile];
 
+  // 模型选择：--models 指定 / 交互选择 / 默认全部
+  let selected = MODELS;
+  if (opts.models) {
+    selected = resolveModels(opts.models);
+    info(`将写入 ${selected.length} 个模型：${selected.map((m) => m.id).join(', ')}`);
+  } else if (process.stdin.isTTY && !opts.yes) {
+    console.log('要写入哪些模型？（回车 = 全部写入，推荐；dsh 里可随时切换）');
+    MODELS.forEach((m, i) => console.log(`  ${i + 1}. ${m.id.padEnd(22)} ${m.name}`));
+    const ans = await prompt('模型 id 或序号（逗号分隔）: ');
+    const tokens = ans.split(/[,\s，]+/).filter(Boolean);
+    if (tokens.length) {
+      selected = resolveModels(tokens);
+      info(`将写入 ${selected.length} 个模型：${selected.map((m) => m.id).join(', ')}`);
+    }
+  }
+
   // 网关模型探测（仅用于汇报，失败不阻塞）
   let liveModels = null;
   try {
@@ -459,14 +494,14 @@ async function cmdSetup(opts) {
 
   for (const prof of profiles) {
     const file = patchFileFor(p, prof);
-    const { action } = upsertPatchEntry(file, buildPatchEntry());
+    const { action } = upsertPatchEntry(file, buildPatchEntry(selected));
     const desc = { created: '已创建并写入', 'added-entry': '已追加插件条目', 'replaced-provider': '已更新已有的天津大学配置' }[action];
     ok(`[${prof}] cordis.patch.yml ${desc}` + (action === 'replaced-provider' ? `（仅覆盖 providers.${PROVIDER_ID}，其他内容保留）` : ''));
   }
 
-  // API Key
+  // API Key：--key > 环境变量 TJU_DSH_KEY > 已有 > 交互输入
   const existingKey = readCredsKey(p.credsFile);
-  let key = opts.key || null;
+  let key = opts.key || process.env.TJU_DSH_KEY || null;
   if (!key && existingKey) {
     ok(`已存在 ${ENV_KEY}，保持不变（如需更换：tju-dsh remove 后重新配置，或直接编辑 ${p.credsFile}）`);
   } else if (!key) {
@@ -483,8 +518,8 @@ async function cmdSetup(opts) {
   console.log('');
   console.log(c.cyan('完成！下一步：'));
   console.log('  1. 重启 dsh（或刷新 Web GUI 页面）');
-  console.log('  2. 模型选择器里会出现「天津大学」分组，含 5 个模型：');
-  for (const m of MODELS) console.log(`     · ${m.name}`);
+  console.log('  2. 模型选择器里会出现「天津大学」分组，含以下模型：');
+  for (const m of selected) console.log(`     · ${m.name}`);
   console.log('  3. 运行 tju-dsh verify 做连通性测试');
   console.log('');
   info('拿不定主意选哪个模型？日常用 tju-llm，写代码用 tju-llm-coder，要最强推理用 deepseek-v4.1-flash。');
@@ -492,7 +527,7 @@ async function cmdSetup(opts) {
 
 async function cmdVerify(opts) {
   const p = dshPaths(opts);
-  const key = opts.key || readCredsKey(p.credsFile);
+  const key = opts.key || process.env.TJU_DSH_KEY || readCredsKey(p.credsFile);
   if (!key) die(`未找到 ${ENV_KEY}。请先运行 tju-dsh 完成配置（或在 ${p.credsFile} 的 refs: 下补上）。`);
 
   const model = opts.model || DEFAULT_VERIFY_MODEL;
@@ -567,7 +602,7 @@ async function cmdRemove(opts) {
 const USAGE = `tju-dsh — 把天津大学智算平台接入 DeepSeek Harness（社区工具，非官方）
 
 用法：
-  tju-dsh [setup] [--profile <名>] [--key <tk-...>] [--home <目录>]
+  tju-dsh [setup] [--profile <名>] [--key <tk-...>] [--models <id,序号,...>] [--home <目录>]
   tju-dsh verify  [--model <id>] [--key <tk-...>]
   tju-dsh models
   tju-dsh remove  [--profile <名> | --all]
@@ -576,7 +611,14 @@ const USAGE = `tju-dsh — 把天津大学智算平台接入 DeepSeek Harness（
   setup   写入 cordis.patch.yml（插件 llm-pi-ai / providers.tju）和 .credentials.yaml（refs.TJU_API_KEY），已有配置会被覆盖更新，其他内容保留并自动备份
   verify  发一条真实请求验证连通（默认模型 tju-llm）
   models  查询网关当前提供的模型列表（无需 Key）
-  remove  撤销 setup 写入的内容（仅删天津大学相关部分）`;
+  remove  撤销 setup 写入的内容（仅删天津大学相关部分）
+
+选项与传 Key 的安全方式：
+  --key <tk-...>     直接提供 Key（会留在 shell 历史里）
+  环境变量 TJU_DSH_KEY  等效于 --key，agent 调用时推荐用它避免命令行历史泄漏
+  --models <列表>    只写入指定模型（id 或序号，逗号分隔）；缺省全部写入
+  --profile <名>     指定 profile；交互模式下多个 profile 会让选
+  --yes, -y          非交互模式：能自动决定的都不再询问`;
 
 async function main() {
   const opts = parseArgs(process.argv.slice(2));

@@ -34,8 +34,16 @@ tju-dsh verify
 ```
 
 > `npx github:...` 需要本机装有 git；`npm i -g` 需要包已发布到 npm。也可以 `git clone` 后本地运行：`npm install && node bin/tju-dsh.mjs`。
->
-> **Agent / Claude Code 用户**：本仓库自带 [SKILL.md](SKILL.md)，可整个仓库装进技能目录，让 agent 一句话完成接入。
+
+## 不想敲命令？把链接发给 agent
+
+把本仓库链接贴给任意能执行命令的 agent（WorkBuddy、豆包办公、Claude Code、ZCode…），说一句「帮我接入天大智算」，然后按它的提示：
+
+1. 粘贴你的 API Key（`tk-` 开头）；
+2. 告诉它想要哪些模型（不选就全配上）；
+3. 完成后重启 dsh 即可。
+
+Agent 侧的完整引导脚本见 [SKILL.md](SKILL.md)——把这个仓库装进技能目录它就会照做。
 
 ## 写入了什么？
 
@@ -64,15 +72,17 @@ tju-dsh verify
 ## 命令一览
 
 ```
-tju-dsh [setup]             配置（默认命令；交互选择 profile，粘贴 Key）
+tju-dsh [setup]             配置（默认命令；交互选择 profile 和模型，粘贴 Key）
 tju-dsh verify [--model id] 连通性测试（默认 tju-llm）
 tju-dsh models              查询网关当前提供的模型列表（无需 Key）
 tju-dsh remove [--all]      撤销写入的内容（只删天津大学相关部分）
 
-选项：--profile <名>  指定 profile
-      --key <tk-...>  非交互提供 Key
-      --home <目录>   覆盖用户主目录（测试用）
-      --yes, -y       非交互模式
+选项：--profile <名>      指定 profile
+      --models <id,序号>  只写入指定模型（逗号分隔）；缺省全部写入
+      --key <tk-...>      非交互提供 Key（会留在 shell 历史里）
+      环境变量 TJU_DSH_KEY  等效 --key，agent/脚本调用推荐用它
+      --home <目录>       覆盖用户主目录（测试用）
+      --yes, -y           非交互模式
 ```
 
 ## 常见问题
