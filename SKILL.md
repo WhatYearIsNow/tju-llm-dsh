@@ -23,10 +23,19 @@ cd <安装目录> && npm install --omit=dev
 # 之后用 node bin/tju-dsh.mjs 代替 tju-dsh
 ```
 
-前置检查：`node --version`（需 ≥ 18，没有就去 nodejs.org 装 LTS 或 `winget install OpenJS.NodeJS.LTS`）；目录 `~/.dsh/profiles/` 是否存在
-（Windows 为 `%USERPROFILE%\.dsh\profiles`）。不存在就让用户装 dsh 并跑一次：
-`npm install -g @deepseek-ai/dsh` 然后 `dsh web`（首次运行自动生成 `~/.dsh/profiles/`，
-按输出地址打开浏览器确认能访问）。没有 dsh 就没有配置目标。
+前置检查：`node --version`（需 ≥ 18，没有就去 nodejs.org 装 LTS 或 `winget install OpenJS.NodeJS.LTS`）；`dsh --version`（没有就 `npm install -g @deepseek-ai/dsh`，装完**开新终端**再试——旧终端 PATH 不刷新）；目录 `~/.dsh/profiles/` 是否存在
+（Windows 为 `%USERPROFILE%\.dsh\profiles`）。
+
+没有 dsh 时完整冷启动（全程可由 agent 代办）：
+
+1. 装 Node.js ≥ 18 → `npm install -g @deepseek-ai/dsh` → `dsh --version` 能出版本号；
+2. `dsh web` 是**常驻前台进程，不会自己退出**——agent 要放后台跑（如 `dsh web` 后台执行），
+   然后轮询本地端口（默认 `http://127.0.0.1:3080`，以进程输出为准）直到 HTTP 200，
+   再把这个后台进程停掉（配置完成后让用户自己正式启动）；
+3. Web 页面若要求登录 DeepSeek 账号，**可以先跳过**——本工具配置的「天津大学」provider
+   与 DeepSeek 账号无关；首次运行已生成 `~/.dsh/profiles/`，配置目标就绪。
+
+没有 dsh 就没有配置目标；装完回到上面的对话脚本。
 
 ## 对话脚本（按顺序，不要跳步）
 
