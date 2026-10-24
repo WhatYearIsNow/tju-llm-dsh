@@ -1,10 +1,12 @@
 # tju-llm-dsh
 
+[![test](https://github.com/WhatYearIsNow/tju-llm-dsh/actions/workflows/test.yml/badge.svg)](https://github.com/WhatYearIsNow/tju-llm-dsh/actions/workflows/test.yml)
+
 > 一键把**天津大学智算平台**（[ai.tju.edu.cn](https://ai.tju.edu.cn)）接入 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）。
 >
 > 社区工具，非官方，与天津大学及 DeepSeek 无关联。
 
-**English quick start:** `git clone https://github.com/WhatYearIsNow/tju-llm-dsh && cd tju-llm-dsh && npm install && node bin/tju-dsh.mjs` — interactive setup, then `node bin/tju-dsh.mjs verify` to test. Requires Node ≥ 18 and a TJU LLM API key. See [Command reference](#命令一览) below.
+**English quick start:** `npm i -g tju-llm-dsh && tju-dsh` (or `npx github:WhatYearIsNow/tju-llm-dsh`), then `tju-dsh verify` to test. Requires Node ≥ 18, git (for the npx-github route), and a TJU LLM API key. See [Command reference](#命令一览) below.
 
 ## 为什么接入天大智算？
 
@@ -22,15 +24,18 @@
 
 ```powershell
 # 1. 配置（交互式：选 profile → 粘贴 Key）
-npx github:WhatYearIsNow/tju-llm-dsh
+npm i -g tju-llm-dsh   # 或者不装：npx github:WhatYearIsNow/tju-llm-dsh
+tju-dsh
 
 # 2. 重启 dsh（或刷新 Web GUI 页面），模型选择器出现「天津大学」分组
 
 # 3. 验证连通
-npx github:WhatYearIsNow/tju-llm-dsh verify
+tju-dsh verify
 ```
 
-> `npx github:...` 需要本机装有 git。也可以 `git clone` 后本地运行：`npm install && node bin/tju-dsh.mjs`。
+> `npx github:...` 需要本机装有 git；`npm i -g` 需要包已发布到 npm。也可以 `git clone` 后本地运行：`npm install && node bin/tju-dsh.mjs`。
+>
+> **Agent / Claude Code 用户**：本仓库自带 [SKILL.md](SKILL.md)，可整个仓库装进技能目录，让 agent 一句话完成接入。
 
 ## 写入了什么？
 
