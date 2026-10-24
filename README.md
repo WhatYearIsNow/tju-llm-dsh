@@ -73,11 +73,24 @@ tju-dsh verify
 
 ## 不想敲命令？把链接发给 agent
 
-把本仓库链接贴给任意能执行命令的 agent（WorkBuddy、豆包办公、Claude Code、ZCode…），说一句「帮我接入天大智算」，然后按它的提示：
+把下面的提示词整段复制给任意能执行命令的 agent（WorkBuddy、豆包办公、Claude Code、ZCode…），按它的提问回答即可：
 
-1. 粘贴你的 API Key（`tk-` 开头）；
-2. 告诉它想要哪些模型（不选就全配上）；
-3. 完成后重启 dsh 即可。
+```text
+帮我在这台电脑上把「天津大学智算平台」接入 DeepSeek Harness（dsh）。
+
+做法：先访问这个引导脚本并严格按它执行：
+https://raw.githubusercontent.com/WhatYearIsNow/tju-llm-dsh/main/SKILL.md
+
+要求：
+1. 我之前没装过 dsh 也没关系，按脚本第 0 步从零装好；
+2. 我还没有 API Key 的话，按脚本第 1 步引导我去申请开通、获取 Key；
+3. 配置完成后运行连通性测试，把结果告诉我；
+4. 模型全配上（或：只要 tju-llm 和 tju-llm-coder）。
+```
+
+> 如果对方 agent 已经装好了本技能（或你在用自己的 Claude Code / ZCode），一句话就够：**「帮我把天大智算接入 dsh」**。
+>
+> 安全提示：Key 会留在聊天记录里，用完可随时到[智能体广场](https://ai.tju.edu.cn)重置；更稳妥的方式是让 agent 用环境变量方式传入（SKILL.md 里有要求）。
 
 Agent 侧的完整引导脚本见 [SKILL.md](SKILL.md)——把这个仓库装进技能目录它就会照做。
 
